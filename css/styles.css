@@ -539,4 +539,3 @@
             .glow-border::before { background-size: 200% 200%; animation: borderflow 6s linear infinite; }
         }
         @keyframes borderflow { to { background-position: 200% 200%; } }
-    </style>

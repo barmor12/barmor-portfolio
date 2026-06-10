@@ -200,4 +200,3 @@
             let to; addEventListener('resize', () => { clearTimeout(to); to=setTimeout(size,200); });
             document.addEventListener('visibilitychange', () => { if(document.hidden) cancelAnimationFrame(raf); else draw(); });
         })();
-    </script>
