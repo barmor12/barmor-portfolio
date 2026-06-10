@@ -151,7 +151,22 @@
         }
         .icon-btn:hover { background: var(--surface-2); border-color: var(--border-strong); transform: translateY(-2px); }
         .icon-btn .icon { width: 19px; height: 19px; }
-        .lang-btn { width: auto; padding: 0 13px; gap: 7px; font-weight: 700; font-size: .8rem; font-family: 'Space Grotesk', sans-serif; }
+        .lang-toggle {
+            display: flex; align-items: center;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 11px; padding: 4px; cursor: pointer;
+            height: 40px; gap: 2px;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+        .lang-toggle:hover { border-color: var(--border-strong); box-shadow: 0 2px 8px var(--shadow); }
+        .lang-toggle span {
+            padding: 0 10px; height: 100%; display: flex; align-items: center;
+            font-weight: 700; font-size: .78rem; font-family: 'Space Grotesk', sans-serif;
+            color: var(--muted); border-radius: 7px;
+            transition: background .25s ease, color .25s ease;
+            white-space: nowrap;
+        }
+        .lang-toggle span.active { background: var(--grad); color: #fff; }
         .menu-btn { display: none; }
 
         /* Sidebar */
@@ -629,9 +644,9 @@
             <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme">
                 <svg class="icon" id="themeIcon"><use href="#i-sun"/></svg>
             </button>
-            <button class="icon-btn lang-btn" onclick="toggleLanguageQuick()" aria-label="Change language">
-                <svg class="icon"><use href="#i-globe"/></svg>
-                <span data-lang="he">HE</span><span data-lang="en" hidden>EN</span>
+            <button class="lang-toggle" onclick="toggleLanguageQuick()" aria-label="Change language">
+                <span data-lang-code="he">עב</span>
+                <span data-lang-code="en">EN</span>
             </button>
             <button class="icon-btn menu-btn" onclick="openSidebar()" aria-label="Open menu"><svg class="icon"><use href="#i-menu"/></svg></button>
         </div>
@@ -961,7 +976,7 @@
         </div>
     </footer>
 
-    <button class="to-top" id="toTop" onclick="scrollTop()" aria-label="Back to top"><svg class="icon"><use href="#i-up"/></svg></button>
+    <button class="to-top" id="toTop" onclick="scrollToTop()" aria-label="Back to top"><svg class="icon"><use href="#i-up"/></svg></button>
 
     <script>
         const root = document.documentElement;
@@ -991,7 +1006,7 @@
             const el = document.getElementById(id);
             if(el){ window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 84, behavior:'smooth' }); }
         }
-        function scrollTop(){ window.scrollTo({ top:0, behavior:'smooth' }); }
+        function scrollToTop(){ window.scrollTo({ top:0, behavior:'smooth' }); }
 
         // Init preferences
         (function(){
