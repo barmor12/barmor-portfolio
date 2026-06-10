@@ -405,10 +405,10 @@
         .to-top:hover { transform: translateY(-4px); }
         .to-top .icon { width: 22px; height: 22px; }
 
-        /* Reveal on scroll */
-        .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s cubic-bezier(.22,1,.36,1); }
+        /* Reveal on scroll — hidden only when JS is active (html.js class added by main.js) */
+        html.js .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s cubic-bezier(.22,1,.36,1); }
         .reveal.in { opacity: 1; transform: none; }
-        @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { html.js .reveal { opacity: 1; transform: none; } }
 
         /* Responsive */
         @media (max-width: 860px) {
