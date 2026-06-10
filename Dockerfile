@@ -11,7 +11,9 @@ RUN rm -f /etc/nginx/conf.d/default.conf
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Site assets
-COPY index.html resume.html family-brief.html /usr/share/nginx/html/
+COPY index.html resume.html /usr/share/nginx/html/
+COPY css/ /usr/share/nginx/html/css/
+COPY js/  /usr/share/nginx/html/js/
 COPY fonts/ /usr/share/nginx/html/fonts/
 
 # Healthcheck hits the in-container /healthz endpoint

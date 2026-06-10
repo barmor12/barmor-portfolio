@@ -125,7 +125,6 @@ barmor-portfolio/
 │
 ├── index.html                  ← Main page (pure HTML structure + SVG sprite)
 ├── resume.html                 ← CV / résumé (served at /cv)
-├── family-brief.html           ← Internal page
 │
 ├── css/
 │   └── styles.css              ← All styles (variables → components → sections → responsive)
