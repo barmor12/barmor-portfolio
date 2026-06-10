@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a365d">
+    <meta name="description" content="Family Brief - Daily Priorities & Family Status">
+    
+    <title>Family Brief</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json,{
+        \"name\": \"Family Brief\",
+        \"short_name\": \"Brief\",
+        \"start_url\": \"./\",
+        \"display\": \"standalone\",
+        \"background_color\": \"#1a365d\",
+        \"theme_color\": \"#f97316\",
+        \"orientation\": \"portrait\",
+        \"icons\": [{
+            \"src\": \"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231a365d' width='192' height='192'/><text x='96' y='120' font-size='100' font-weight='bold' fill='%23f97316' text-anchor='middle' font-family='sans-serif'>B</text></svg>\",
+            \"sizes\": \"192x192\",
+            \"type\": \"image/svg+xml\",
+            \"purpose\": \"any\"
+        }]
+    }">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%231a365d'/><text x='50' y='70' font-size='60' font-weight='bold' fill='%23f97316' text-anchor='middle' font-family='sans-serif'>B</text></svg>">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2d5a8c;
+            --accent: #f97316;
+            --accent-light: #fb923c;
+            --bg: #0f1419;
+            --surface: #1a2332;
+            --surface-light: #252f3f;
+            --text: #f5f7fa;
+            --text-muted: #9ca3af;
+            --border: #3f4d63;
+            --success: #10b981;
+            --warning: #fbbf24;
+            --danger: #ef4444;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, var(--primary) 100%);
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(249, 115, 22, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(26, 54, 93, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        main {
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        /* Header */
+        .header {
+            padding: 24px 0 16px;
+            text-align: center;
+            margin-bottom: 24px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: var(--surface);
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            animation: slideUp 0.6s ease-out 0.2s both;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: var(--accent);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--text);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(249, 115, 22, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title .emoji {
+            font-size: 20px;
+        }
+
+        /* Priority Input */
+        .priority-input {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .priority-input input {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .priority-input input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+        }
+
+        .priority-input button {
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .priority-input button:hover {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+        }
+
+        /* Fatigue Meter */
+        .fatigue-container {
+            margin: 12px 0;
+        }
+
+        .fatigue-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .fatigue-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--success) 0%, var(--warning) 50%, var(--danger) 100%);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .fatigue-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .fatigue-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .fatigue-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+        }
+
+        .fatigue-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        /* Task List */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            background: var(--surface-light);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .task-item.completed .task-checkbox {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .task-checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            opacity: 0;
+        }
+
+        .task-item.completed .task-checkbox::after {
+            opacity: 1;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        /* Family Cards */
+        .family-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .family-card {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-light) 100%);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease-out;
+            cursor: pointer;
+        }
+
+        .family-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(249, 115, 22, 0.1);
+        }
+
+        .family-card .emoji {
+            font-size: 36px;
+            margin-bottom: 8px;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .family-card:hover .emoji {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .family-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .status-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .status-busy { background: rgba(251, 191, 36, 0.2); color: var(--warning); }
+        .status-away { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .status-sleeping { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.1);
+        }
+
+        .action-btn .emoji {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* Stats */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(249, 115, 22, 0.05) 100%);
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Mood Selector */
+        .mood-selector {
+            display: flex;
+            justify-content: space-around;
+            gap: 8px;
+        }
+
+        .mood-btn {
+            flex: 1;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .mood-btn:hover,
+        .mood-btn.selected {
+            border-color: var(--accent);
+            background: var(--surface-light);
+            transform: scale(1.05);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 12px 0;
+            z-index: 100;
+        }
+
+        .nav-spacer {
+            height: 80px;
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Settings Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 360px;
+            width: 90%;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--surface-light);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 12px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .family-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Install Prompt */
+        .install-prompt {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: var(--surface);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            padding: 16px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 999;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .install-prompt.show {
+            display: flex;
+        }
+
+        .install-prompt-text {
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .install-prompt-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .install-prompt-btn:hover {
+            background: var(--accent-light);
+        }
+
+        .install-prompt-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <h1>📋 Family Brief</h1>
+                <p>יום טוב, בר</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="morning">🌅 בוקר</button>
+                <button class="tab-btn" data-tab="family">👨‍👩‍👧‍👦 משפחה</button>
+                <button class="tab-btn" data-tab="evening">🌙 ערב</button>
+            </div>
+
+            <!-- Morning Tab -->
+            <div id="morning" class="tab-content active">
+                <!-- Priority Card -->
+                <div class="card">
+                    <div class="card-title">
+                        <span class="emoji">⚡</span> העדיפות #1 היום
+                    </div>
+                    <div class="priority-input">
+                        <input type="text" id="priorityInput" placeholder="מה החשוב ביותר?">
+                        <button onclick="addPriority()">הוסף</button>
+                    </div>
+                    <div id="priorityDisplay" style="color: var(--accent); font-weight: 600; font-size: 16px; padding: 12px; background: var(--bg); border-radius: 8px; text-align: center; display: none;"></div>
+                </div>
+
+                <!-- Fatigue Meter -->
+                <div class="card">
+                    <div class="card-title">
+                        <span class="emoji">😴</span> איכות שינה
+                    </div>
+                    <div class="fatigue-value" id="fatigueValue">7</div>
+                    <div class="fatigue-container">
+                        <div class="fatigue-label">
+                            <span>נשוארעי</span>
+                            <span>מרומם ✨</span>
+                        </div>
+                        <input type="range" id="fatigueSlider" class="fatigue-slider" min="0" max="10" value="7">
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-title">
+                        <span class="emoji">⚙️</span> פעולות מהירות
+                    </div>
+                    <div class="quick-actions">
+                        <button class="action-btn" onclick="addNote()">
+                            <span class="emoji">📝</span>
+                            הוסף הערה
+                        </button>
+                        <button class="action-btn" onclick="callWife()">
+                            <span class="emoji">📞</span>
+                            התקשר לזיו
+                        </button>
+                        <button class="action-btn" onclick="breathing()">
+                            <span class="emoji">🫁</span>
+                            הנשמה
+                        </button>
+                        <button class="action-btn" onclick="openSettings()">
+                            <span class="emoji">⚙️</span>
+                            הגדרות
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tasks -->
+                <div class="card">
+                    <div class="card-title">
+                        <span class="emoji">✓</span> המשימות שלי
+                    </div>
+                    <div class="task-list" id="taskList"></div>
+                </div>
+            </div>
+
+            <!-- Family Tab -->
+            <div id="family" class="tab-content">
+                <div class="card">
+                    <div class="card-title">
+                        <span class="emoji">👨‍👩‍👧‍👦</span> מצב המשפחה
+                    </div>
+                    <div class="family-grid" id="familyGrid"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span class="emoji">📝</span> הערות משפחתיות
+                    </div>
+                    <textarea id="familyNotes" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); font-family: inherit; font-size: 14px; min-height: 100px; resize: vertical;" placeholder="הערות משפחתיות..."></textarea>
+                    <button class="action-btn" style="width: 100%; margin-top: 12px;" onclick="saveFamilyNotes()">שמור הערות</button>
+                </div>
+            </div>
+
+            <!-- Evening Tab -->
+            <div id="evening" class="tab-content">
+                <div class="card">
+                    <div class="card-title">
+                        <span class="emoji">📊</span> סטטיסטיקות היום
+                    </div>
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="tasksCompleted">0</div>
+                            <div class="stat-label">משימות הושלמו</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="notesAdded">0</div>
+                            <div class="stat-label">הערות התווסחו</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span class="emoji">😊</span> איך היה היום?
+                    </div>
+                    <div class="mood-selector">
+                        <button class="mood-btn" data-mood="1">😞</button>
+                        <button class="mood-btn" data-mood="2">😐</button>
+                        <button class="mood-btn" data-mood="3">🙂</button>
+                        <button class="mood-btn" data-mood="4">😊</button>
+                        <button class="mood-btn" data-mood="5">🤩</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span class="emoji">🙏</span> הערכה
+                    </div>
+                    <textarea id="gratitude" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); font-family: inherit; font-size: 14px; min-height: 100px; resize: vertical;" placeholder="מה אתה מודה על היום?"></textarea>
+                    <button class="action-btn" style="width: 100%; margin-top: 12px;" onclick="saveGratitude()">שמור הערכה</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-spacer"></div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">⚙️ הגדרות</div>
+            <div class="form-group">
+                <label class="form-label">שמך</label>
+                <input type="text" id="userName" class="form-input" value="בר">
+            </div>
+            <div class="form-group">
+                <label class="form-label">שם אישתך</label>
+                <input type="text" id="wifeName" class="form-input" value="זיו">
+            </div>
+            <div class="form-group">
+                <label class="form-label">שם הילד הראשון</label>
+                <input type="text" id="child1Name" class="form-input" value="עתי">
+            </div>
+            <div class="form-group">
+                <label class="form-label">שם הילד השני</label>
+                <input type="text" id="child2Name" class="form-input" value="עילי">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeSettings()">בטל</button>
+                <button class="btn-primary" onclick="saveSettings()">שמור</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Install Prompt -->
+    <div id="installPrompt" class="install-prompt">
+        <span class="install-prompt-text">הוסף ל-Home Screen</span>
+        <button class="install-prompt-btn" onclick="installApp()">הוסף</button>
+        <button class="install-prompt-close" onclick="closeInstallPrompt()">×</button>
+    </div>
+
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'family-brief-v1';
+                const urlsToCache = ['./'];
+                
+                self.addEventListener('install', event => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME).then(cache => {
+                            return cache.addAll(urlsToCache).catch(() => {});
+                        })
+                    );
+                    self.skipWaiting();
+                });
+                
+                self.addEventListener('activate', event => {
+                    event.waitUntil(clients.claim());
+                });
+                
+                self.addEventListener('fetch', event => {
+                    event.respondWith(
+                        caches.match(event.request).then(response => {
+                            return response || fetch(event.request).catch(() => {
+                                return new Response('Offline');
+                            });
+                        })
+                    );
+                });
+            `;
+            
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            navigator.serviceWorker.register(swUrl).catch(() => {});
+        }
+
+        // Data Management
+        class AppData {
+            static save(key, value) {
+                localStorage.setItem(key, JSON.stringify(value));
+            }
+
+            static get(key, defaultValue = null) {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : defaultValue;
+            }
+
+            static remove(key) {
+                localStorage.removeItem(key);
+            }
+        }
+
+        // Initialize
+        let tasks = AppData.get('tasks', []);
+        let familyMembers = [
+            { name: '👑 בר', emoji: '👨', status: 'active' },
+            { name: 'זיו', emoji: '👩', status: 'active' },
+            { name: 'עתי', emoji: '👧', status: 'sleeping' },
+            { name: 'עילי', emoji: '👶', status: 'sleeping' }
+        ];
+
+        // Render
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = tasks.map((task, i) => `
+                <div class="task-item ${task.completed ? 'completed' : ''}">
+                    <div class="task-checkbox" onclick="toggleTask(${i})"></div>
+                    <div class="task-text">${task.text}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderFamily() {
+            const familyGrid = document.getElementById('familyGrid');
+            familyGrid.innerHTML = familyMembers.map((m, i) => `
+                <div class="family-card" onclick="cycleStatus(${i})">
+                    <span class="emoji">${m.emoji}</span>
+                    <div class="family-name">${m.name}</div>
+                    <div class="status-badge status-${m.status}">${getStatusText(m.status)}</div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'active': '🟢 פעיל',
+                'busy': '🟠 עסוק',
+                'away': '🔵 משם',
+                'sleeping': '🟣 ישן'
+            };
+            return texts[status] || status;
+        }
+
+        function cycleStatus(index) {
+            const statuses = ['active', 'busy', 'away', 'sleeping'];
+            const current = familyMembers[index].status;
+            const currentIndex = statuses.indexOf(current);
+            familyMembers[index].status = statuses[(currentIndex + 1) % statuses.length];
+            renderFamily();
+            AppData.save('familyMembers', familyMembers);
+        }
+
+        // Functions
+        function addPriority() {
+            const input = document.getElementById('priorityInput');
+            const display = document.getElementById('priorityDisplay');
+            if (input.value.trim()) {
+                display.textContent = '🎯 ' + input.value;
+                display.style.display = 'block';
+                AppData.save('priority', input.value);
+                input.value = '';
+            }
+        }
+
+        function addNote() {
+            const note = prompt('הערה:');
+            if (note) {
+                let notes = AppData.get('notes', []);
+                notes.push({ text: note, date: new Date().toLocaleDateString('he-IL') });
+                AppData.save('notes', notes);
+                AppData.save('notesAdded', (AppData.get('notesAdded', 0) + 1));
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('tasksCompleted').textContent = tasks.filter(t => t.completed).length;
+            document.getElementById('notesAdded').textContent = AppData.get('notesAdded', 0);
+        }
+
+        function toggleTask(index) {
+            tasks[index].completed = !tasks[index].completed;
+            AppData.save('tasks', tasks);
+            renderTasks();
+            updateStats();
+        }
+
+        function breathing() {
+            alert('🫁 נשימה עמוקה: שאף-4 | עצור-4 | שוחרר-4. חזור 5 פעמים. 🧘');
+        }
+
+        function callWife() {
+            alert('📞 התקשר ל' + familyMembers[1].name);
+        }
+
+        function saveFamilyNotes() {
+            const notes = document.getElementById('familyNotes').value;
+            AppData.save('familyNotes', notes);
+            alert('✅ הערות שמורות!');
+        }
+
+        function saveGratitude() {
+            const gratitude = document.getElementById('gratitude').value;
+            AppData.save('gratitude', gratitude);
+            alert('✅ הערכה שמורה!');
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function saveSettings() {
+            const names = {
+                userName: document.getElementById('userName').value,
+                wifeName: document.getElementById('wifeName').value,
+                child1Name: document.getElementById('child1Name').value,
+                child2Name: document.getElementById('child2Name').value
+            };
+            AppData.save('names', names);
+            familyMembers[0].name = '👑 ' + names.userName;
+            familyMembers[1].name = names.wifeName;
+            familyMembers[2].name = names.child1Name;
+            familyMembers[3].name = names.child2Name;
+            renderFamily();
+            closeSettings();
+        }
+
+        // Tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Fatigue Slider
+        document.getElementById('fatigueSlider').addEventListener('input', (e) => {
+            document.getElementById('fatigueValue').textContent = e.target.value;
+            AppData.save('fatigue', e.target.value);
+        });
+
+        // Mood Selector
+        document.querySelectorAll('.mood-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                AppData.save('mood', btn.dataset.mood);
+            });
+        });
+
+        // Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.add('show');
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                    closeInstallPrompt();
+                });
+            }
+        }
+
+        function closeInstallPrompt() {
+            document.getElementById('installPrompt').classList.remove('show');
+        }
+
+        // Enter key on inputs
+        document.getElementById('priorityInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addPriority();
+        });
+
+        // Load data on startup
+        window.addEventListener('load', () => {
+            renderTasks();
+            renderFamily();
+            updateStats();
+            
+            const saved = AppData.get('priority');
+            if (saved) {
+                document.getElementById('priorityDisplay').textContent = '🎯 ' + saved;
+                document.getElementById('priorityDisplay').style.display = 'block';
+            }
+
+            const savedFatigue = AppData.get('fatigue', 7);
+            document.getElementById('fatigueSlider').value = savedFatigue;
+            document.getElementById('fatigueValue').textContent = savedFatigue;
+
+            const savedNotes = AppData.get('familyNotes', '');
+            document.getElementById('familyNotes').value = savedNotes;
+
+            const savedGratitude = AppData.get('gratitude', '');
+            document.getElementById('gratitude').value = savedGratitude;
+        });
+
+        // Add some sample tasks
+        if (tasks.length === 0) {
+            tasks = [
+                { text: 'בדוק אימיילים חשובים', completed: false },
+                { text: 'שחק עם עתי 15 דק\'', completed: false },
+                { text: 'עדכן את הצוות', completed: false }
+            ];
+            AppData.save('tasks', tasks);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+.git
+.github
+node_modules
+build
+*.md
+docker-compose.yml
+.gitignore
+.DS_Store
+package*.json

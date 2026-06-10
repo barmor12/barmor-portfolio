@@ -1,0 +1,39 @@
+services:
+  web:
+    build: .
+    image: barmor-portfolio:latest
+    container_name: barmor-portfolio
+    restart: unless-stopped
+    # Bound to localhost only — the host nginx reverse-proxies barmordev.com to it.
+    ports:
+      - "127.0.0.1:8088:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      com.barmor.project: "portfolio"
+
+  # Lightweight uptime monitor for the site (self-hosted, optional).
+  # Exposes a dashboard on 127.0.0.1:3011 — add a monitor for http://web/healthz.
+  uptime:
+    image: louislam/uptime-kuma:1
+    container_name: barmor-portfolio-uptime
+    restart: unless-stopped
+    profiles: ["monitoring"]
+    ports:
+      - "127.0.0.1:3011:3001"
+    volumes:
+      - uptime-data:/app/data
+    depends_on:
+      - web
+
+volumes:
+  uptime-data:

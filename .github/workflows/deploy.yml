@@ -1,0 +1,43 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-portfolio
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build image & deploy
+    # Runs on the project's self-hosted runner on the VPS
+    runs-on: [self-hosted, portfolio]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker compose build
+
+      - name: Deploy (recreate container)
+        run: docker compose up -d --remove-orphans
+
+      - name: Prune old images
+        run: docker image prune -f
+
+      - name: Health check
+        run: |
+          echo "Waiting for the site to become healthy..."
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8088/healthz >/dev/null 2>&1; then
+              echo "✅ Site is healthy"
+              curl -s http://127.0.0.1:8088/healthz
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "❌ Health check failed"
+          docker compose logs --tail=50 web
+          exit 1

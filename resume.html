@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bar Mor - Software Engineer Resume</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+            color: #1f2937;
+            background: #f9fafb;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .language-toggle {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .language-toggle button,
+        .export-btn {
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .language-toggle button {
+            background: #e5e7eb;
+            border: 1px solid #d1d5db;
+            padding: 0 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .language-toggle button.active {
+            background: #1f2937;
+            color: white;
+            border-color: #1f2937;
+        }
+
+        .language-toggle button:hover {
+            background: #374151;
+            color: white;
+            border-color: #374151;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            gap: 8px;
+            white-space: nowrap;
+            min-width: 170px;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+            letter-spacing: 0.3px;
+        }
+
+        .export-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+            background: linear-gradient(135deg, #06b6d4, #0ea5e9);
+        }
+
+        .export-btn:active:not(:disabled) {
+            transform: translateY(0px);
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+        }
+
+        .export-btn:disabled {
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
+
+        .pdf-icon {
+            font-size: 16px;
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        #he {
+            direction: rtl;
+            text-align: right;
+        }
+
+        #en {
+            direction: ltr;
+            text-align: left;
+        }
+
+        header {
+            border-bottom: 2px solid #1f2937;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #1f2937;
+        }
+
+        .title {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .contact-info {
+            font-size: 13px;
+            color: #6b7280;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        section {
+            margin-bottom: 28px;
+        }
+
+        h2 {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #1f2937;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+        .job {
+            margin-bottom: 18px;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #he .job-header {
+            flex-direction: row-reverse;
+        }
+
+        .job-title,
+        .company {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .job-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #he .job-meta {
+            flex-direction: row-reverse;
+        }
+
+        .job-description {
+            font-size: 13px;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        @media (min-width: 768px) {
+            .skills-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .skill-item {
+            color: #4b5563;
+        }
+
+        .skill-label {
+            font-weight: 600;
+            color: #1f2937;
+            display: inline-block;
+            min-width: 100px;
+        }
+
+        .about {
+            font-size: 13px;
+            color: #4b5563;
+            line-height: 1.7;
+        }
+
+        .social-links {
+            margin-top: 15px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .social-links a {
+            text-decoration: none;
+            color: #1f2937;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: #1f2937;
+            color: white;
+            border-color: #1f2937;
+        }
+
+        .social-links a.primary {
+            background: #1f2937;
+            color: white;
+            border-color: #1f2937;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .language-toggle {
+                width: 100%;
+            }
+
+            .language-toggle button {
+                flex: 1;
+            }
+
+            .export-btn {
+                width: 100%;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <div class="language-toggle">
+                <button class="lang-btn active" data-lang="he">עברית</button>
+                <button class="lang-btn" data-lang="en">English</button>
+            </div>
+
+            <button class="export-btn" onclick="exportToPDF()">
+                <span class="pdf-icon">📄</span>
+                <span id="export-text">ייצא כ-PDF</span>
+            </button>
+        </div>
+
+        <!-- Hebrew -->
+        <div id="he" class="content active">
+            <header>
+                <h1>בר מור</h1>
+                <div class="title">מהנדס תוכנה • Full-Stack Developer</div>
+                <div class="contact-info">
+                    <span>📍 אשדוד, ישראל</span>
+                    <span>📧 barmor123456@gmail.com</span>
+                    <span>📱 0509667461</span>
+                </div>
+                <div class="social-links">
+                    <a href="https://wa.me/972509667461" target="_blank" class="primary">💬 WhatsApp</a>
+                    <a href="https://github.com/barmor12" target="_blank">GitHub</a>
+                    <a href="https://www.linkedin.com/in/bar-mor-42a1421a1/" target="_blank">LinkedIn</a>
+                </div>
+            </header>
+
+            <section>
+                <h2>אודות</h2>
+                <div class="about">
+                    Full-Stack Developer עם ניסיון בפיתוח מערכות תפעוליות קריטיות. מתמחה ב-Python, Flask, React, MongoDB ו-SQL Server. בנייה של כלים וdashboards עם Grafana ו-Kibana. יכולת חזקה בפתרון בעיות מורכבות ואופטימיזציה של בסיסי נתונים.
+                </div>
+            </section>
+
+            <section>
+                <h2>ניסיון תעסוקתי</h2>
+
+                <div class="job">
+                    <div class="job-header">
+                        <span class="job-title">מומחה PCA ומפתח Full-Stack</span>
+                        <span class="company">HCT - נמל הדרום</span>
+                    </div>
+                    <div class="job-meta">
+                        <span>אשדוד, ישראל</span>
+                        <span>יולי 2024 - היום</span>
+                    </div>
+                    <div class="job-description">
+                        הובלה ופיתוח של פרויקטים Full-Stack פנימיים לשיפור מערכות תפעוליות וזרימות עבודה בזמן אמת לאנשי חדר הבקרה. בנייה של כלים עצמאיים, דוחות פיקוח ופתרונות ניטור תוך שימוש ב-Python, Flask, React/React Native, JavaScript, HTML, CSS, MongoDB, SQL Server, Grafana ו-Kibana. משמש כאשכול ידע מרכזי המספק מומחיות בטיפול בתקלות מערכת, אופטימיזציה של בסיסי נתונים, כתיבת שאילתות SQL, פיתוח Stored Procedures וביצירת עדכונים יעילים.
+                    </div>
+                </div>
+
+                <div class="job">
+                    <div class="job-header">
+                        <span class="job-title">מנהל צוות Full-Stack</span>
+                        <span class="company">FeelThere (סטארטאפ)</span>
+                    </div>
+                    <div class="job-meta">
+                        <span>ישראל (היברידי)</span>
+                        <span>ינואר 2024 - דצמבר 2024</span>
+                    </div>
+                    <div class="job-description">
+                        הנהלה והדרכה של צוות פיתוח Full-Stack תוך הבטחת תקנים טכניים גבוהים והעברת ידע יעילה. ניהול תכנון ספרינטים, בדיקת קוד והחלטות אדריכליות טכניות. הובלת יישום טכנולוגיות MERN Stack והקמת שיטות עבודה מיטביות בכל הצוות.
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>כישורים טכניים</h2>
+                <div class="skills-grid">
+                    <div class="skill-item"><span class="skill-label">Frontend:</span> React, React Native, HTML5, CSS3, JavaScript (ES6+), TypeScript</div>
+                    <div class="skill-item"><span class="skill-label">Backend:</span> Node.js, Express.js, Python, Flask, REST APIs</div>
+                    <div class="skill-item"><span class="skill-label">בסיסי נתונים:</span> MongoDB, SQL Server, NoSQL, עיצוב מסדי נתונים, SQL, SP</div>
+                    <div class="skill-item"><span class="skill-label">DevOps/ענן:</span> AWS, Linux, Docker, Git, CI/CD</div>
+                    <div class="skill-item"><span class="skill-label">ויזואליזציית נתונים:</span> Grafana, Kibana, דוחות בזמן אמת</div>
+                    <div class="skill-item"><span class="skill-label">שיטות עבודה:</span> Agile/Scrum, MERN Stack, Full-Stack Dev</div>
+                </div>
+            </section>
+
+            <section>
+                <h2>השכלה</h2>
+                <div class="job">
+                    <div class="job-header">
+                        <span class="job-title">תואר ראשון בהנדסת תוכנה (B.Sc.)</span>
+                        <span class="company">SCE - המכללה האקדמית להנדסה ע״ש סמי שמעון</span>
+                    </div>
+                    <div class="job-meta">
+                        <span>אשדוד, ישראל</span>
+                        <span>2020 - 2025</span>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>שפות</h2>
+                <div class="skills-grid">
+                    <div class="skill-item"><span class="skill-label">עברית:</span> שפת אם</div>
+                    <div class="skill-item"><span class="skill-label">אנגלית:</span> שוטף</div>
+                </div>
+            </section>
+        </div>
+
+        <!-- English -->
+        <div id="en" class="content">
+            <header>
+                <h1>Bar Mor</h1>
+                <div class="title">Software Engineer • Full-Stack Developer</div>
+                <div class="contact-info">
+                    <span>📍 Ashdod, Israel</span>
+                    <span>📧 barmor123456@gmail.com</span>
+                    <span>📱 0509667461</span>
+                </div>
+                <div class="social-links">
+                    <a href="https://wa.me/972509667461" target="_blank" class="primary">💬 WhatsApp</a>
+                    <a href="https://github.com/barmor12" target="_blank">GitHub</a>
+                    <a href="https://www.linkedin.com/in/bar-mor-42a1421a1/" target="_blank">LinkedIn</a>
+                </div>
+            </header>
+
+            <section>
+                <h2>About</h2>
+                <div class="about">
+                    Full-Stack Developer with experience building mission-critical operational systems. Skilled in Python, Flask, React, MongoDB, and SQL Server. Expert in creating tools and dashboards with Grafana and Kibana. Strong problem-solving capabilities and database optimization expertise.
+                </div>
+            </section>
+
+            <section>
+                <h2>Professional Experience</h2>
+
+                <div class="job">
+                    <div class="job-header">
+                        <span class="job-title">PCA Specialist & Full-Stack Developer</span>
+                        <span class="company">HCT - Hadarom Container Terminal</span>
+                    </div>
+                    <div class="job-meta">
+                        <span>Ashdod, Israel</span>
+                        <span>Jul 2024 - Present</span>
+                    </div>
+                    <div class="job-description">
+                        Drive and develop internal full-stack projects enhancing operational systems and real-time workflows for Control Room operators. Build independent tools, dashboards, and monitoring solutions using Python, Flask, React/React Native, JavaScript, HTML, CSS, MongoDB, SQL Server, Grafana, and Kibana. Serve as key knowledge leader providing expertise in system troubleshooting, database optimization, SQL query writing, Stored Procedures development, and effective Workarounds.
+                    </div>
+                </div>
+
+                <div class="job">
+                    <div class="job-header">
+                        <span class="job-title">Full-Stack Team Leader</span>
+                        <span class="company">FeelThere (Startup)</span>
+                    </div>
+                    <div class="job-meta">
+                        <span>Israel (Hybrid)</span>
+                        <span>Jan 2024 - Dec 2024</span>
+                    </div>
+                    <div class="job-description">
+                        Led and mentored full-stack development team ensuring high technical standards and effective knowledge transfer. Managed sprint planning, code reviews, and technical architecture decisions. Drove implementation of MERN stack technologies and established best practices across the team.
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Technical Skills</h2>
+                <div class="skills-grid">
+                    <div class="skill-item"><span class="skill-label">Frontend:</span> React, React Native, HTML5, CSS3, JavaScript (ES6+), TypeScript</div>
+                    <div class="skill-item"><span class="skill-label">Backend:</span> Node.js, Express.js, Python, Flask, REST APIs</div>
+                    <div class="skill-item"><span class="skill-label">Databases:</span> MongoDB, SQL Server, NoSQL, Database Design, SQL, SP</div>
+                    <div class="skill-item"><span class="skill-label">DevOps/Cloud:</span> AWS, Linux, Docker, Git, CI/CD</div>
+                    <div class="skill-item"><span class="skill-label">Data Visualization:</span> Grafana, Kibana, Real-time Dashboards</div>
+                    <div class="skill-item"><span class="skill-label">Methodologies:</span> Agile/Scrum, MERN Stack, Full-Stack Dev</div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Education</h2>
+                <div class="job">
+                    <div class="job-header">
+                        <span class="job-title">B.Sc. Software Engineering</span>
+                        <span class="company">SCE - Sami Shamoon College of Engineering</span>
+                    </div>
+                    <div class="job-meta">
+                        <span>Ashdod, Israel</span>
+                        <span>2020 - 2025</span>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Languages</h2>
+                <div class="skills-grid">
+                    <div class="skill-item"><span class="skill-label">Hebrew:</span> Native</div>
+                    <div class="skill-item"><span class="skill-label">English:</span> Fluent</div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll(".lang-btn").forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const lang = this.getAttribute("data-lang");
+
+                document.querySelectorAll(".lang-btn").forEach((b) => b.classList.remove("active"));
+                this.classList.add("active");
+
+                document.querySelectorAll(".content").forEach((c) => c.classList.remove("active"));
+                document.getElementById(lang).classList.add("active");
+
+                document.getElementById("export-text").textContent =
+                    lang === "he" ? "ייצא כ-PDF" : "Export as PDF";
+            });
+        });
+
+        function configureFonts() {
+            pdfMake.fonts = {
+                Roboto: {
+                    normal: "Roboto-Regular.ttf",
+                    bold: "Roboto-Medium.ttf",
+                    italics: "Roboto-Italic.ttf",
+                    bolditalics: "Roboto-MediumItalic.ttf"
+                },
+                NotoSansHebrew: {
+                    normal: "./fonts/NotoSansHebrew-VariableFont_wdth,wght.ttf",
+                    bold: "./fonts/NotoSansHebrew-VariableFont_wdth,wght.ttf",
+                    italics: "./fonts/NotoSansHebrew-VariableFont_wdth,wght.ttf",
+                    bolditalics: "./fonts/NotoSansHebrew-VariableFont_wdth,wght.ttf"
+                }
+            };
+        }
+
+        function getBaseDocDefinition() {
+            return {
+                pageSize: "A4",
+                pageMargins: [26, 24, 26, 24],
+                info: {
+                    title: "Bar Mor Resume",
+                    author: "Bar Mor",
+                    subject: "Resume"
+                }
+            };
+        }
+
+        function getEnglishPdfDefinition() {
+            const base = getBaseDocDefinition();
+
+            return {
+                ...base,
+                defaultStyle: {
+                    font: "Roboto",
+                    fontSize: 10,
+                    color: "#4b5563"
+                },
+                content: [
+                    { text: "Bar Mor", style: "mainTitle", alignment: "center" },
+                    { text: "Software Engineer • Full-Stack Developer", style: "subTitle", alignment: "center" },
+                    { text: "Ashdod, Israel • barmor123456@gmail.com • 0509667461", style: "contact", alignment: "center", margin: [0, 0, 0, 10] },
+
+                    { text: "ABOUT", style: "sectionTitle" },
+                    { text: "Full-Stack Developer with experience building mission-critical operational systems. Skilled in Python, Flask, React, MongoDB, and SQL Server. Expert in creating tools and dashboards with Grafana and Kibana. Strong problem-solving capabilities and database optimization expertise.", margin: [0, 0, 0, 10] },
+
+                    { text: "PROFESSIONAL EXPERIENCE", style: "sectionTitle" },
+                    {
+                        columns: [
+                            { text: "PCA Specialist & Full-Stack Developer", style: "jobTitle", width: "*" },
+                            { text: "HCT - Hadarom Container Terminal", style: "jobCompany", width: "auto", alignment: "right" }
+                        ]
+                    },
+                    {
+                        columns: [
+                            { text: "Ashdod, Israel", style: "jobMeta", width: "*" },
+                            { text: "Jul 2024 - Present", style: "jobMeta", width: "auto", alignment: "right" }
+                        ],
+                        margin: [0, 0, 0, 4]
+                    },
+                    {
+                        text: "Drive and develop internal full-stack projects enhancing operational systems and real-time workflows for Control Room operators. Build independent tools, dashboards, and monitoring solutions using Python, Flask, React/React Native, JavaScript, HTML, CSS, MongoDB, SQL Server, Grafana, and Kibana. Serve as key knowledge leader providing expertise in system troubleshooting, database optimization, SQL query writing, Stored Procedures development, and effective Workarounds.",
+                        margin: [0, 0, 0, 8]
+                    },
+
+                    {
+                        columns: [
+                            { text: "Full-Stack Team Leader", style: "jobTitle", width: "*" },
+                            { text: "FeelThere (Startup)", style: "jobCompany", width: "auto", alignment: "right" }
+                        ]
+                    },
+                    {
+                        columns: [
+                            { text: "Israel (Hybrid)", style: "jobMeta", width: "*" },
+                            { text: "Jan 2024 - Dec 2024", style: "jobMeta", width: "auto", alignment: "right" }
+                        ],
+                        margin: [0, 0, 0, 4]
+                    },
+                    {
+                        text: "Led and mentored full-stack development team ensuring high technical standards and effective knowledge transfer. Managed sprint planning, code reviews, and technical architecture decisions. Drove implementation of MERN stack technologies and established best practices across the team.",
+                        margin: [0, 0, 0, 10]
+                    },
+
+                    { text: "TECHNICAL SKILLS", style: "sectionTitle" },
+                    {
+                        ul: [
+                            "Frontend: React, React Native, HTML5, CSS3, JavaScript (ES6+), TypeScript",
+                            "Backend: Node.js, Express.js, Python, Flask, REST APIs",
+                            "Databases: MongoDB, SQL Server, NoSQL, Database Design, SQL, SP",
+                            "DevOps/Cloud: AWS, Linux, Docker, Git, CI/CD",
+                            "Data Visualization: Grafana, Kibana, Real-time Dashboards",
+                            "Methodologies: Agile/Scrum, MERN Stack, Full-Stack Dev"
+                        ],
+                        margin: [0, 0, 0, 10]
+                    },
+
+                    { text: "EDUCATION", style: "sectionTitle" },
+                    {
+                        columns: [
+                            { text: "B.Sc. Software Engineering", style: "jobTitle", width: "*" },
+                            { text: "SCE - Sami Shamoon College of Engineering", style: "jobCompany", width: "auto", alignment: "right" }
+                        ]
+                    },
+                    {
+                        columns: [
+                            { text: "Ashdod, Israel", style: "jobMeta", width: "*" },
+                            { text: "2020 - 2025", style: "jobMeta", width: "auto", alignment: "right" }
+                        ],
+                        margin: [0, 0, 0, 10]
+                    },
+
+                    { text: "LANGUAGES", style: "sectionTitle" },
+                    {
+                        ul: [
+                            "Hebrew: Native",
+                            "English: Fluent"
+                        ]
+                    }
+                ],
+                styles: {
+                    mainTitle: { fontSize: 22, bold: true, color: "#1f2937", margin: [0, 0, 0, 4] },
+                    subTitle: { fontSize: 11, color: "#6b7280", margin: [0, 0, 0, 4] },
+                    contact: { fontSize: 10, color: "#6b7280" },
+                    sectionTitle: { fontSize: 10, bold: true, color: "#1f2937", margin: [0, 10, 0, 6], decoration: "underline" },
+                    jobTitle: { fontSize: 10.5, bold: true, color: "#1f2937" },
+                    jobCompany: { fontSize: 10.5, bold: true, color: "#1f2937" },
+                    jobMeta: { fontSize: 9, color: "#6b7280" }
+                }
+            };
+        }
+
+        function getHebrewPdfDefinition() {
+            const base = getBaseDocDefinition();
+
+            return {
+                ...base,
+                defaultStyle: {
+                    font: "NotoSansHebrew",
+                    fontSize: 10,
+                    color: "#4b5563"
+                },
+                content: [
+                    { text: "בר מור", style: "mainTitle", alignment: "center" },
+                    { text: "מהנדס תוכנה • Full-Stack Developer", style: "subTitle", alignment: "center" },
+                    { text: "אשדוד, ישראל • barmor123456@gmail.com • 0509667461", style: "contact", alignment: "center", margin: [0, 0, 0, 10] },
+
+                    { text: "אודות", style: "sectionTitle", alignment: "right" },
+                    { text: "Full-Stack Developer עם ניסיון בפיתוח מערכות תפעוליות קריטיות. מתמחה ב-Python, Flask, React, MongoDB ו-SQL Server. בנייה של כלים וdashboards עם Grafana ו-Kibana. יכולת חזקה בפתרון בעיות מורכבות ואופטימיזציה של בסיסי נתונים.", alignment: "right", margin: [0, 0, 0, 10] },
+
+                    { text: "ניסיון תעסוקתי", style: "sectionTitle", alignment: "right" },
+                    {
+                        columns: [
+                            { text: "HCT - נמל הדרום", style: "jobCompany", width: "auto", alignment: "left" },
+                            { text: "מומחה PCA ומפתח Full-Stack", style: "jobTitle", width: "*", alignment: "right" }
+                        ]
+                    },
+                    {
+                        columns: [
+                            { text: "אשדוד, ישראל", style: "jobMeta", width: "auto", alignment: "left" },
+                            { text: "יולי 2024 - היום", style: "jobMeta", width: "*", alignment: "right" }
+                        ],
+                        margin: [0, 0, 0, 4]
+                    },
+                    {
+                        text: "הובלה ופיתוח של פרויקטים Full-Stack פנימיים לשיפור מערכות תפעוליות וזרימות עבודה בזמן אמת לאנשי חדר הבקרה. בנייה של כלים עצמאיים, דוחות פיקוח ופתרונות ניטור תוך שימוש ב-Python, Flask, React/React Native, JavaScript, HTML, CSS, MongoDB, SQL Server, Grafana ו-Kibana. משמש כאשכול ידע מרכזי המספק מומחיות בטיפול בתקלות מערכת, אופטימיזציה של בסיסי נתונים, כתיבת שאילתות SQL, פיתוח Stored Procedures וביצירת עדכונים יעילים.",
+                        alignment: "right",
+                        margin: [0, 0, 0, 8]
+                    },
+
+                    {
+                        columns: [
+                            { text: "FeelThere (סטארטאפ)", style: "jobCompany", width: "auto", alignment: "left" },
+                            { text: "מנהל צוות Full-Stack", style: "jobTitle", width: "*", alignment: "right" }
+                        ]
+                    },
+                    {
+                        columns: [
+                            { text: "ישראל (היברידי)", style: "jobMeta", width: "auto", alignment: "left" },
+                            { text: "ינואר 2024 - דצמבר 2024", style: "jobMeta", width: "*", alignment: "right" }
+                        ],
+                        margin: [0, 0, 0, 4]
+                    },
+                    {
+                        text: "הנהלה והדרכה של צוות פיתוח Full-Stack תוך הבטחת תקנים טכניים גבוהים והעברת ידע יעילה. ניהול תכנון ספרינטים, בדיקת קוד והחלטות אדריכליות טכניות. הובלת יישום טכנולוגיות MERN Stack והקמת שיטות עבודה מיטביות בכל הצוות.",
+                        alignment: "right",
+                        margin: [0, 0, 0, 10]
+                    },
+
+                    { text: "כישורים טכניים", style: "sectionTitle", alignment: "right" },
+                    {
+                        ul: [
+                            "Frontend: React, React Native, HTML5, CSS3, JavaScript (ES6+), TypeScript",
+                            "Backend: Node.js, Express.js, Python, Flask, REST APIs",
+                            "בסיסי נתונים: MongoDB, SQL Server, NoSQL, עיצוב מסדי נתונים, SQL, SP",
+                            "DevOps/ענן: AWS, Linux, Docker, Git, CI/CD",
+                            "ויזואליזציית נתונים: Grafana, Kibana, דוחות בזמן אמת",
+                            "שיטות עבודה: Agile/Scrum, MERN Stack, Full-Stack Dev"
+                        ],
+                        alignment: "right",
+                        margin: [0, 0, 0, 10]
+                    },
+
+                    { text: "השכלה", style: "sectionTitle", alignment: "right" },
+                    {
+                        columns: [
+                            { text: "SCE - המכללה האקדמית להנדסה ע״ש סמי שמעון", style: "jobCompany", width: "auto", alignment: "left" },
+                            { text: "תואר ראשון בהנדסת תוכנה (B.Sc.)", style: "jobTitle", width: "*", alignment: "right" }
+                        ]
+                    },
+                    {
+                        columns: [
+                            { text: "אשדוד, ישראל", style: "jobMeta", width: "auto", alignment: "left" },
+                            { text: "2020 - 2025", style: "jobMeta", width: "*", alignment: "right" }
+                        ],
+                        margin: [0, 0, 0, 10]
+                    },
+
+                    { text: "שפות", style: "sectionTitle", alignment: "right" },
+                    {
+                        ul: [
+                            "עברית: שפת אם",
+                            "אנגלית: שוטף"
+                        ],
+                        alignment: "right"
+                    }
+                ],
+                styles: {
+                    mainTitle: { fontSize: 22, bold: true, color: "#1f2937", margin: [0, 0, 0, 4] },
+                    subTitle: { fontSize: 11, color: "#6b7280", margin: [0, 0, 0, 4] },
+                    contact: { fontSize: 10, color: "#6b7280" },
+                    sectionTitle: { fontSize: 10, bold: true, color: "#1f2937", margin: [0, 10, 0, 6], decoration: "underline" },
+                    jobTitle: { fontSize: 10.5, bold: true, color: "#1f2937" },
+                    jobCompany: { fontSize: 10.5, bold: true, color: "#1f2937" },
+                    jobMeta: { fontSize: 9, color: "#6b7280" }
+                }
+            };
+        }
+
+        async function exportToPDF() {
+            const currentLang = document.querySelector(".lang-btn.active").getAttribute("data-lang");
+            const btn = document.querySelector(".export-btn");
+            const originalContent = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = currentLang === "he"
+                ? '<span class="pdf-icon">⏳</span><span id="export-text">מייצא...</span>'
+                : '<span class="pdf-icon">⏳</span><span id="export-text">Exporting...</span>';
+
+            try {
+                configureFonts();
+
+                const docDefinition = currentLang === "he"
+                    ? getHebrewPdfDefinition()
+                    : getEnglishPdfDefinition();
+
+                const fileName = currentLang === "he"
+                    ? "קורות-חיים-בר-מור.pdf"
+                    : "Bar-Mor-Resume.pdf";
+
+                pdfMake.createPdf(docDefinition).download(fileName);
+            } catch (error) {
+                console.error(error);
+                alert(currentLang === "he" ? "שגיאה בייצוא PDF" : "Error exporting PDF");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
+        }
+
+        window.addEventListener("load", function () {
+            const currentLang = document.querySelector(".lang-btn.active").getAttribute("data-lang");
+            document.getElementById("export-text").textContent =
+                currentLang === "he" ? "ייצא כ-PDF" : "Export as PDF";
+        });
+    </script>
+</body>
+</html>
