@@ -434,6 +434,28 @@
             .brand-sub { display: none; }
         }
 
+        /* ===== Mobile layout fixes ===== */
+        @media (max-width: 600px) {
+            /* Portfolio — horizontal compact cards */
+            .proj { display: flex; align-items: stretch; }
+            .proj-cover { width: 80px; min-height: 90px; height: auto; flex-shrink: 0; border-radius: 0; }
+            .proj-cover .icon { width: 28px; height: 28px; }
+            .proj-body { padding: 14px 16px; flex: 1; min-width: 0; }
+            .proj-body h3 { font-size: 1rem; margin-bottom: 4px; }
+            .proj-body p { font-size: .82rem; margin-bottom: 8px; }
+            .proj-links { gap: 10px; }
+            .proj-links a { font-size: .82rem; }
+
+            /* Why Choose Me — 2-column compact grid */
+            #why-me .g-3 { grid-template-columns: 1fr 1fr; gap: 12px; }
+            #why-me .card { padding: 16px 14px; }
+            #why-me .card-icon { width: 42px; height: 42px; border-radius: 12px; margin-bottom: 10px; }
+            #why-me .card-icon .icon { width: 20px; height: 20px; }
+            #why-me .card h3 { font-size: .95rem; margin-bottom: 6px; }
+            #why-me .card p { font-size: .8rem; line-height: 1.4; }
+            #why-me .card .num { font-size: 1.8rem; inset-block-start: 10px; inset-inline-end: 12px; }
+        }
+
         :focus-visible { outline: 2px solid var(--g2); outline-offset: 3px; border-radius: 4px; }
 
         /* ===== Futuristic / 3D-glass layer ===== */
@@ -800,11 +822,6 @@
                     <div class="proj-cover"><svg class="icon"><use href="#i-clock"/></svg></div>
                     <div class="proj-body"><h3>8shmirot</h3><p data-lang="he">מערכת ניהול משמרות חכמה</p><p data-lang="en" hidden>Smart shift management system</p>
                         <div class="proj-links"><a href="https://github.com/barmor12/8shmirot" target="_blank" rel="noopener">GitHub <svg class="icon"><use href="#i-arrow-ur"/></svg></a></div></div>
-                </article>
-                <article class="proj reveal">
-                    <div class="proj-cover"><svg class="icon"><use href="#i-repeat"/></svg></div>
-                    <div class="proj-body"><h3>ShiftChange</h3><p data-lang="he">מערכת החלפת משמרות חכמה</p><p data-lang="en" hidden>Smart shift exchange system</p>
-                        <div class="proj-links"><a href="https://github.com/barmor12/ShiftChange" target="_blank" rel="noopener">GitHub <svg class="icon"><use href="#i-arrow-ur"/></svg></a></div></div>
                 </article>
                 <article class="proj reveal">
                     <div class="proj-cover"><svg class="icon"><use href="#i-target"/></svg></div>
